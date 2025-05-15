@@ -1,11 +1,10 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarHeader, SidebarTrigger, SidebarProvider } from "@/components/ui/sidebar";
-import { Bell, Home, FileText, Users, Settings, LogOut, Menu, MessageSquare } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Bell, Home, FileText, Users, Settings, LogOut, Menu } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 
@@ -151,12 +150,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="flex flex-col flex-1">
           <header className="bg-white p-4 border-b flex items-center justify-between">
             <div className="flex items-center">
-              <SidebarTrigger asChild>
-                <Button variant="ghost" size="icon" className="mr-2">
-                  <Menu size={20} />
-                </Button>
+              {/* Fix for the error: Removed asChild from SidebarTrigger as it doesn't need to compose with another component */}
+              <SidebarTrigger>
+                <Menu size={20} />
               </SidebarTrigger>
-              <h1 className="text-xl font-semibold">GEOMUNDI</h1>
+              <h1 className="text-xl font-semibold ml-2">GEOMUNDI</h1>
             </div>
             
             <div className="flex items-center space-x-2">
