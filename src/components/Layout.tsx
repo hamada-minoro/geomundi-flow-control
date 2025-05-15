@@ -1,12 +1,14 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarHeader, SidebarTrigger, SidebarProvider } from "@/components/ui/sidebar";
 import { Bell, Home, FileText, Users, Settings, LogOut, Menu } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -20,6 +22,7 @@ interface Notification {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const isMobile = useIsMobile();
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: 1,
@@ -150,11 +153,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="flex flex-col flex-1">
           <header className="bg-white p-4 border-b flex items-center justify-between">
             <div className="flex items-center">
-              {/* Fix for the error: Removed asChild from SidebarTrigger as it doesn't need to compose with another component */}
               <SidebarTrigger>
                 <Menu size={20} />
               </SidebarTrigger>
-              <h1 className="text-xl font-semibold ml-2">GEOMUNDI</h1>
+              <h1 className="text-xl font-semibold ml-2 truncate">{isMobile ? "GM" : "GEOMUNDI"}</h1>
             </div>
             
             <div className="flex items-center space-x-2">
@@ -169,12 +171,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80" align="end">
+                <PopoverContent className="w-[280px] sm:w-80" align="end">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <h3 className="font-semibold">Notificações</h3>
-                      <Button variant="ghost" size="sm" onClick={markAllAsRead}>
-                        Marcar todas como lidas
+                      <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs sm:text-sm">
+                        {isMobile ? "Marcar todas" : "Marcar todas como lidas"}
                       </Button>
                     </div>
                     
@@ -219,7 +221,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
           </header>
           
-          <main className="flex-1 p-6 overflow-auto">
+          <main className="flex-1 p-3 sm:p-6 overflow-auto">
             {children}
           </main>
         </div>

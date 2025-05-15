@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Process } from "@/types";
 import { Search, FileText, Plus, ArrowUp, ArrowDown } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ProcessTableProps {
   processes: Process[];
@@ -28,6 +29,7 @@ const priorityColors = {
 };
 
 const ProcessTable: React.FC<ProcessTableProps> = ({ processes, showFilters = false }) => {
+  const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [typeFilter, setTypeFilter] = useState<string>("");
@@ -92,10 +94,179 @@ const ProcessTable: React.FC<ProcessTableProps> = ({ processes, showFilters = fa
     cancelled: "Cancelado"
   };
 
+  // Renderização mobile da tabela como cards
+  const renderMobileView = () => (
+    <div className="space-y-4">
+      {filteredProcesses.length > 0 ? (
+        filteredProcesses.map((process) => (
+          <div key={process.id} className="bg-white p-4 rounded-lg shadow-sm border">
+            <div className="flex justify-between items-start mb-3">
+              <div>
+                <h3 className="font-semibold">{process.title}</h3>
+                <p className="text-xs text-gray-500">ID: {process.id}</p>
+              </div>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to={`/processos/${process.id}`}>
+                  <FileText className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              <div>
+                <p className="text-xs text-gray-500">Tipo:</p>
+                <p className="text-sm">{processTypeLabels[process.type as keyof typeof processTypeLabels]}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Data:</p>
+                <p className="text-sm">{formatDate(process.createdAt)}</p>
+              </div>
+            </div>
+            
+            <div className="flex justify-between items-center mt-3">
+              <Badge className={statusColors[process.status as keyof typeof statusColors]}>
+                {processStatusLabels[process.status as keyof typeof processStatusLabels]}
+              </Badge>
+              <Badge className={priorityColors[process.priority as keyof typeof priorityColors]}>
+                {process.priority === "high" ? "Alta" : process.priority === "medium" ? "Média" : "Baixa"}
+              </Badge>
+            </div>
+            
+            {process.steps[process.currentStep] && (
+              <div className="flex items-center mt-3 border-t pt-2">
+                <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-2 text-xs font-medium">
+                  {process.steps[process.currentStep].assignedTo.name.charAt(0)}
+                </div>
+                <span className="text-sm truncate">{process.steps[process.currentStep].assignedTo.name}</span>
+              </div>
+            )}
+          </div>
+        ))
+      ) : (
+        <div className="text-center py-10 bg-white rounded-lg">
+          <p className="text-gray-500">Nenhum processo encontrado.</p>
+        </div>
+      )}
+    </div>
+  );
+
+  // Renderização desktop da tabela original
+  const renderDesktopView = () => (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[80px]">
+              <div className="flex items-center cursor-pointer" onClick={() => handleSort("id")}>
+                ID
+                {sortField === "id" && (
+                  sortDirection === "asc" ? 
+                    <ArrowUp className="ml-1 h-3 w-3" /> : 
+                    <ArrowDown className="ml-1 h-3 w-3" />
+                )}
+              </div>
+            </TableHead>
+            <TableHead>
+              <div className="flex items-center cursor-pointer" onClick={() => handleSort("title")}>
+                Título
+                {sortField === "title" && (
+                  sortDirection === "asc" ? 
+                    <ArrowUp className="ml-1 h-3 w-3" /> : 
+                    <ArrowDown className="ml-1 h-3 w-3" />
+                )}
+              </div>
+            </TableHead>
+            <TableHead>Tipo</TableHead>
+            <TableHead>
+              <div className="flex items-center cursor-pointer" onClick={() => handleSort("status")}>
+                Status
+                {sortField === "status" && (
+                  sortDirection === "asc" ? 
+                    <ArrowUp className="ml-1 h-3 w-3" /> : 
+                    <ArrowDown className="ml-1 h-3 w-3" />
+                )}
+              </div>
+            </TableHead>
+            <TableHead>
+              <div className="flex items-center cursor-pointer" onClick={() => handleSort("priority")}>
+                Prioridade
+                {sortField === "priority" && (
+                  sortDirection === "asc" ? 
+                    <ArrowUp className="ml-1 h-3 w-3" /> : 
+                    <ArrowDown className="ml-1 h-3 w-3" />
+                )}
+              </div>
+            </TableHead>
+            <TableHead>Responsável atual</TableHead>
+            <TableHead>
+              <div className="flex items-center cursor-pointer" onClick={() => handleSort("createdAt")}>
+                Data de criação
+                {sortField === "createdAt" && (
+                  sortDirection === "asc" ? 
+                    <ArrowUp className="ml-1 h-3 w-3" /> : 
+                    <ArrowDown className="ml-1 h-3 w-3" />
+                )}
+              </div>
+            </TableHead>
+            <TableHead className="text-right">Ações</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {filteredProcesses.length > 0 ? (
+            filteredProcesses.map((process) => (
+              <TableRow key={process.id}>
+                <TableCell className="font-medium">{process.id}</TableCell>
+                <TableCell>{process.title}</TableCell>
+                <TableCell>{processTypeLabels[process.type as keyof typeof processTypeLabels]}</TableCell>
+                <TableCell>
+                  <Badge className={statusColors[process.status as keyof typeof statusColors]}>
+                    {processStatusLabels[process.status as keyof typeof processStatusLabels]}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge className={priorityColors[process.priority as keyof typeof priorityColors]}>
+                    {process.priority === "high" ? "Alta" : process.priority === "medium" ? "Média" : "Baixa"}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center">
+                    {process.steps[process.currentStep] && (
+                      <>
+                        <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-2 text-xs font-medium">
+                          {process.steps[process.currentStep].assignedTo.name.charAt(0)}
+                        </div>
+                        <span className="text-sm">{process.steps[process.currentStep].assignedTo.name}</span>
+                      </>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>{formatDate(process.createdAt)}</TableCell>
+                <TableCell className="text-right">
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to={`/processos/${process.id}`}>
+                      <FileText className="h-4 w-4" />
+                      <span className="sr-only">Ver detalhes</span>
+                    </Link>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={8} className="h-24 text-center">
+                Nenhum processo encontrado.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+
   return (
     <div className="space-y-4">
       {showFilters && (
-        <div className="flex flex-col sm:flex-row gap-4 pb-4">
+        <div className="flex flex-col gap-4 pb-4">
           <div className="relative flex-1">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -106,36 +277,38 @@ const ProcessTable: React.FC<ProcessTableProps> = ({ processes, showFilters = fa
             />
           </div>
           
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="all">Todos os Status</SelectItem>
-                <SelectItem value="draft">Rascunho</SelectItem>
-                <SelectItem value="ongoing">Em Andamento</SelectItem>
-                <SelectItem value="completed">Concluído</SelectItem>
-                <SelectItem value="cancelled">Cancelado</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="">Todos os Status</SelectItem>
+                  <SelectItem value="draft">Rascunho</SelectItem>
+                  <SelectItem value="ongoing">Em Andamento</SelectItem>
+                  <SelectItem value="completed">Concluído</SelectItem>
+                  <SelectItem value="cancelled">Cancelado</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="">Todos os Tipos</SelectItem>
+                  <SelectItem value="purchase">Compra</SelectItem>
+                  <SelectItem value="hiring">Contratação</SelectItem>
+                  <SelectItem value="other">Outro</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
           
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-              <SelectValue placeholder="Tipo" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="all">Todos os Tipos</SelectItem>
-                <SelectItem value="purchase">Compra</SelectItem>
-                <SelectItem value="hiring">Contratação</SelectItem>
-                <SelectItem value="other">Outro</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          
-          <Button asChild className="sm:ml-auto">
+          <Button asChild className="w-full sm:w-auto">
             <Link to="/processos/novo">
               <Plus className="mr-2 h-4 w-4" />
               Novo Processo
@@ -144,115 +317,7 @@ const ProcessTable: React.FC<ProcessTableProps> = ({ processes, showFilters = fa
         </div>
       )}
       
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[80px]">
-                <div className="flex items-center cursor-pointer" onClick={() => handleSort("id")}>
-                  ID
-                  {sortField === "id" && (
-                    sortDirection === "asc" ? 
-                      <ArrowUp className="ml-1 h-3 w-3" /> : 
-                      <ArrowDown className="ml-1 h-3 w-3" />
-                  )}
-                </div>
-              </TableHead>
-              <TableHead>
-                <div className="flex items-center cursor-pointer" onClick={() => handleSort("title")}>
-                  Título
-                  {sortField === "title" && (
-                    sortDirection === "asc" ? 
-                      <ArrowUp className="ml-1 h-3 w-3" /> : 
-                      <ArrowDown className="ml-1 h-3 w-3" />
-                  )}
-                </div>
-              </TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>
-                <div className="flex items-center cursor-pointer" onClick={() => handleSort("status")}>
-                  Status
-                  {sortField === "status" && (
-                    sortDirection === "asc" ? 
-                      <ArrowUp className="ml-1 h-3 w-3" /> : 
-                      <ArrowDown className="ml-1 h-3 w-3" />
-                  )}
-                </div>
-              </TableHead>
-              <TableHead>
-                <div className="flex items-center cursor-pointer" onClick={() => handleSort("priority")}>
-                  Prioridade
-                  {sortField === "priority" && (
-                    sortDirection === "asc" ? 
-                      <ArrowUp className="ml-1 h-3 w-3" /> : 
-                      <ArrowDown className="ml-1 h-3 w-3" />
-                  )}
-                </div>
-              </TableHead>
-              <TableHead>Responsável atual</TableHead>
-              <TableHead>
-                <div className="flex items-center cursor-pointer" onClick={() => handleSort("createdAt")}>
-                  Data de criação
-                  {sortField === "createdAt" && (
-                    sortDirection === "asc" ? 
-                      <ArrowUp className="ml-1 h-3 w-3" /> : 
-                      <ArrowDown className="ml-1 h-3 w-3" />
-                  )}
-                </div>
-              </TableHead>
-              <TableHead className="text-right">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredProcesses.length > 0 ? (
-              filteredProcesses.map((process) => (
-                <TableRow key={process.id}>
-                  <TableCell className="font-medium">{process.id}</TableCell>
-                  <TableCell>{process.title}</TableCell>
-                  <TableCell>{processTypeLabels[process.type as keyof typeof processTypeLabels]}</TableCell>
-                  <TableCell>
-                    <Badge className={statusColors[process.status as keyof typeof statusColors]}>
-                      {processStatusLabels[process.status as keyof typeof processStatusLabels]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={priorityColors[process.priority as keyof typeof priorityColors]}>
-                      {process.priority === "high" ? "Alta" : process.priority === "medium" ? "Média" : "Baixa"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      {process.steps[process.currentStep] && (
-                        <>
-                          <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-2 text-xs font-medium">
-                            {process.steps[process.currentStep].assignedTo.name.charAt(0)}
-                          </div>
-                          <span className="text-sm">{process.steps[process.currentStep].assignedTo.name}</span>
-                        </>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>{formatDate(process.createdAt)}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link to={`/processos/${process.id}`}>
-                        <FileText className="h-4 w-4" />
-                        <span className="sr-only">Ver detalhes</span>
-                      </Link>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">
-                  Nenhum processo encontrado.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      {isMobile ? renderMobileView() : renderDesktopView()}
     </div>
   );
 };
