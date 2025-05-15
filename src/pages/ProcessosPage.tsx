@@ -10,6 +10,7 @@ const ProcessosPage = () => {
     {
       id: 'PROC-2023-042',
       title: 'Compra de equipamentos de informática',
+      description: 'Processo para aquisição de computadores e periféricos para o departamento de TI',
       type: 'purchase',
       status: 'ongoing',
       priority: 'high',
@@ -65,6 +66,7 @@ const ProcessosPage = () => {
     {
       id: 'PROC-2023-041',
       title: 'Contratação de serviço de consultoria',
+      description: 'Processo para contratação de consultoria especializada em gestão de projetos',
       type: 'hiring',
       status: 'ongoing',
       priority: 'medium',
@@ -102,6 +104,7 @@ const ProcessosPage = () => {
     {
       id: 'PROC-2023-040',
       title: 'Compra de material de escritório',
+      description: 'Processo para aquisição de materiais de escritório para uso administrativo',
       type: 'purchase',
       status: 'completed',
       priority: 'low',
@@ -176,6 +179,7 @@ const ProcessosPage = () => {
     {
       id: 'PROC-2023-039',
       title: 'Contratação de empresa de limpeza',
+      description: 'Processo para contratação de serviços terceirizados de limpeza',
       type: 'hiring',
       status: 'cancelled',
       priority: 'medium',
@@ -231,6 +235,7 @@ const ProcessosPage = () => {
     {
       id: 'PROC-2023-038',
       title: 'Aquisição de licenças de software',
+      description: 'Processo para aquisição de licenças de software para o departamento de TI',
       type: 'purchase',
       status: 'ongoing',
       priority: 'high',

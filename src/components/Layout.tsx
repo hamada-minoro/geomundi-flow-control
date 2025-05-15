@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarHeader, SidebarTrigger, SidebarProvider } from "@/components/ui/sidebar";
 import { Bell, Home, FileText, Users, Settings, LogOut, Menu, MessageSquare } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
