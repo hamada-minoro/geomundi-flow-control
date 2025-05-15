@@ -1,34 +1,26 @@
-# Build stage
-FROM node:20-alpine AS build
+# Etapa 1: Build do React (Vite)
+FROM node:18 AS builder
+
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
+
+RUN git clone https://github.com/hamada-minoro/geomundi-flow-control.git .
+
+RUN npm install
 RUN npm run build
 
-# Production stage
-FROM nginx:stable-alpine
-WORKDIR /usr/share/nginx/html
+# Etapa 2: Imagem final leve, só com o servidor de arquivos
+FROM node:18-alpine
 
-# Remove default nginx static assets
-RUN rm -rf ./*
+WORKDIR /app
 
-# Copy built assets from build stage
-COPY --from=build /app/build .
+# Instala o "serve" para rodar o app
+RUN npm install -g serve
 
-# Add necessary permissions for nginx to run as non-root
-# But initially allow root as required by Coolify
-RUN chown -R nginx:nginx /var/cache/nginx /var/log/nginx /etc/nginx/conf.d && \
-    chmod -R 755 /var/cache/nginx /var/log/nginx /etc/nginx/conf.d
+# Copia só o build final para esta imagem
+COPY --from=builder /app/dist .
 
-# Copy entrypoint script
-COPY entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+# Expõe a porta padrão
+EXPOSE 8422
 
-# Copy nginx config template
-COPY nginx.conf /etc/nginx/conf.d/default.conf.template
-
-EXPOSE 80
-
-# Use entrypoint script to replace environment variables and start nginx
-ENTRYPOINT ["/docker-entrypoint.sh"]
+# Comando para rodar o servidor
+CMD ["serve", "-s", ".", "-l", "8422"]
