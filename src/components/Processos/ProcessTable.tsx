@@ -112,7 +112,7 @@ const ProcessTable: React.FC<ProcessTableProps> = ({ processes, showFilters = fa
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="">Todos os Status</SelectItem>
+                <SelectItem value="all">Todos os Status</SelectItem>
                 <SelectItem value="draft">Rascunho</SelectItem>
                 <SelectItem value="ongoing">Em Andamento</SelectItem>
                 <SelectItem value="completed">Concluído</SelectItem>
@@ -127,7 +127,7 @@ const ProcessTable: React.FC<ProcessTableProps> = ({ processes, showFilters = fa
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="">Todos os Tipos</SelectItem>
+                <SelectItem value="all">Todos os Tipos</SelectItem>
                 <SelectItem value="purchase">Compra</SelectItem>
                 <SelectItem value="hiring">Contratação</SelectItem>
                 <SelectItem value="other">Outro</SelectItem>
